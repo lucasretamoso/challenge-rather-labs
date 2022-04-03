@@ -1,46 +1,37 @@
 import { WebSocket } from 'ws';
-import { BitfinexBookMessegetDTO, BitfinexBookRequestDTO } from '../../../data/DTOs/bitfinexMessageDTO';
-import { BitfinexFrequencyEnum, BitfinexPrecisionEnum } from '../../../data/enums/bitfinexEnum';
+import { BitfinexMessageDTO } from '../../../data/DTOs/bitfinexMessageDTO';
 import { BadArgumentsException } from '../../../data/errors/badArgumentsException';
-import { IMarketTipsService } from '../../services/marketTipsService';
+import { IBitfinexService } from '../../services/bitfinexService';
 
 export interface IMarketTipsController {
-  getMarketTips(data: BitfinexBookRequestDTO, ws: WebSocket): void;
-  pauseMarketTips(): void;
+  getMarketTicker(data: Partial<BitfinexMessageDTO>, ws: WebSocket): void;
+  pauseMarketTicker(): void;
 }
 
 export class MarketTipsController implements IMarketTipsController {
   
-  constructor(private readonly marketTipsService: IMarketTipsService) {}
+  constructor(private readonly marketTickerService: IBitfinexService) {}
   
-  getMarketTips(data: BitfinexBookRequestDTO, wsOrigin: WebSocket): void {
+  getMarketTicker(data: Partial<BitfinexMessageDTO>, wsOrigin: WebSocket): void {
     try {
       if (!data.symbol) {
         throw new BadArgumentsException('Symbol field is required');
       }
   
-      if (data.freq && !BitfinexFrequencyEnum[data.freq]) {
-        throw new BadArgumentsException('The frequency field does not exist');
-      }
-  
-      if (data.prec && !BitfinexPrecisionEnum[data.prec]) {
-        throw new BadArgumentsException('The precision field does not exist');
-      }
-  
-      const msg: BitfinexBookMessegetDTO = {
+      const msg: BitfinexMessageDTO = {
         event: 'subscribe',
-        channel: 'book',
-        ...data
+        channel: 'ticker',
+        symbol: data.symbol
       };
       
-      this.marketTipsService.getOrderbookByPairName(msg, wsOrigin);
+      this.marketTickerService.getOrderbookByPairName(msg, wsOrigin);
     } catch (err) {
       wsOrigin.emit('error', err);
-      wsOrigin.emit('market:tip:ob:pause')
+      wsOrigin.emit('market:tip:ob:pause');
     }
   }
 
-  pauseMarketTips(): void {
-    this.marketTipsService.removeAllHandshaking();
+  pauseMarketTicker(): void {
+    this.marketTickerService.removeAllHandshaking();
   }
 }

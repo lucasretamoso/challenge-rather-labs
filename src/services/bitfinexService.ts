@@ -1,19 +1,18 @@
 import ws, { WebSocket } from 'ws';
 import {
-  BitfinexBookMessegetDTO,
-  BitfinexBookRequestDTO,
+  BitfinexMessageDTO,
 } from '../../data/DTOs/bitfinexMessageDTO';
 import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 
-export interface IMarketTipsService {
+export interface IBitfinexService {
   getOrderbookByPairName(
-    data: BitfinexBookRequestDTO,
+    data: BitfinexMessageDTO,
     wsOrigin: WebSocket
   ): void;
   removeAllHandshaking(): void;
 }
 
-export class MarketTipsService implements IMarketTipsService {
+export class BitfinexService implements IBitfinexService {
   private socket: ws;
 
   constructor() {
@@ -21,11 +20,11 @@ export class MarketTipsService implements IMarketTipsService {
   }
 
   getOrderbookByPairName(
-    msg: BitfinexBookMessegetDTO,
+    msg: BitfinexMessageDTO,
     wsOrigin: WebSocket
   ): void {
     this.removeAllHandshaking();
-    
+
     this.socket.on('message', (msg) => {
       const parseMessage = this.parseMessageOrderBook(msg);
       if (parseMessage) {
@@ -46,26 +45,17 @@ export class MarketTipsService implements IMarketTipsService {
 
   private parseMessageOrderBook(msg: ws.RawData): string | undefined {
     const parseResult = JSON.parse(msg.toString());
-    if (Array.isArray(parseResult) && Array.isArray(parseResult[1])) {
-      const result = JSON.stringify(
-        parseResult[1]
-          .map((result, index) => {
-            if (Array.isArray(result)) {
-              return {
-                amount: result[2] || result,
-                price: result[0] || result,
-              };
-            } else if (index === 1) {
-              return {
-                amount: parseResult[1][2],
-                price: parseResult[1][0],
-              };
-            }
-          })
-          .filter(Boolean)
-      );
-      return result;
+    if(Array.isArray(parseResult) && Array.isArray(parseResult[1])) {
+      return JSON.stringify({
+        bid: {
+          price: parseResult[1][0],
+          size: parseResult[1][1]
+        },
+        ask: {
+          price: parseResult[1][2],
+          size: parseResult[1][3]
+        }
+      });
     }
-    return undefined;
   }
 }
