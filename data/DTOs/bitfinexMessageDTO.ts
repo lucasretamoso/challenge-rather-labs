@@ -1,15 +1,6 @@
-import { BitfinexFrequencyEnum, BitfinexPrecisionEnum } from "../enums/bitfinexEnum";
-
-export interface BitfinexBookRequestDTO {
+export interface BitfinexMessageDTO {
+  event: string;
+  channel: string;
   symbol: string;
-  prec?: BitfinexPrecisionEnum;
-  freq?: BitfinexFrequencyEnum;
-  len?: ["1", "25", "100", "250"];
-}
-
-export interface BitfinexBookMessegetDTO {
-  symbol: string;
-  prec?: BitfinexPrecisionEnum;
-  freq?: BitfinexFrequencyEnum;
-  len?: ["1", "25", "100", "250"];
+  frec?: string;
 }

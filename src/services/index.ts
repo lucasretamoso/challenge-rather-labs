@@ -1,7 +1,11 @@
-import { MarketTipsService } from './marketTipsService';
+import { BitfinexOrderBookService } from './bitfinexOrderBookService';
+import { BitfinexService } from './bitfinexService';
 
-const marketTipsService = new MarketTipsService();
+const bitfinexService = new BitfinexService();
+
+const bitfinexOrderBookService = new BitfinexOrderBookService();
 
 export {
-  marketTipsService
+  bitfinexService,
+  bitfinexOrderBookService
 };
