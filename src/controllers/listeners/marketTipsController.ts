@@ -24,7 +24,7 @@ export class MarketTipsController implements IMarketTipsController {
         symbol: data.symbol
       };
       
-      this.marketTickerService.getOrderbookByPairName(msg, wsOrigin);
+      this.marketTickerService.getTickerByPairName(msg, wsOrigin);
     } catch (err) {
       wsOrigin.emit('error', err);
       wsOrigin.emit('market:tip:ob:pause');

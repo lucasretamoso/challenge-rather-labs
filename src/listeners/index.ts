@@ -2,6 +2,7 @@ import { Router } from 'express-ws';
 import { RawData, WebSocket } from 'ws';
 import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 import { ErrorListener } from './modules/errorListener';
+import { MarketOrderBookListener } from './modules/marketOrdenBookListener';
 import { MarketTickerListener } from './modules/marketTipsListener';
 
 export const router = (r: Router) => {
@@ -13,7 +14,7 @@ export const router = (r: Router) => {
   });
 
   r.ws('/market-effective-price', function(ws) {
-    MarketTickerListener(ws);
+    MarketOrderBookListener(ws);
     ErrorListener(ws);
 
     ws.on('message', (event) => emitEventParse(ws, event));

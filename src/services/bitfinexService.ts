@@ -5,7 +5,7 @@ import {
 import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 
 export interface IBitfinexService {
-  getOrderbookByPairName(
+  getTickerByPairName(
     data: BitfinexMessageDTO,
     wsOrigin: WebSocket
   ): void;
@@ -19,7 +19,7 @@ export class BitfinexService implements IBitfinexService {
     this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
   }
 
-  getOrderbookByPairName(
+  getTickerByPairName(
     msg: BitfinexMessageDTO,
     wsOrigin: WebSocket
   ): void {
