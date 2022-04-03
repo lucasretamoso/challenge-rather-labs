@@ -1,0 +1,9 @@
+{
+    "ignore": [ "build", "node_modules" ],
+    "events": {
+         "restart": "npm run lint"
+    },
+    "execMap": {
+        "ts": "ts-node"
+    }
+  }
