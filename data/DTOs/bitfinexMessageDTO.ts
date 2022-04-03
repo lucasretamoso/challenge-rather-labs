@@ -7,9 +7,7 @@ export interface BitfinexBookRequestDTO {
   len?: ["1", "25", "100", "250"];
 }
 
-export interface BitfinexBookMessegetDTO {
-  symbol: string;
-  prec?: BitfinexPrecisionEnum;
-  freq?: BitfinexFrequencyEnum;
-  len?: ["1", "25", "100", "250"];
+export interface BitfinexBookMessegetDTO extends BitfinexBookRequestDTO {
+  event: string;
+  channel: string;
 }
