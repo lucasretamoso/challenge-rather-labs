@@ -1,7 +1,7 @@
-import { MarketTipsService } from './marketTipsService';
+import { BitfinexService } from './bitfinexService';
 
-const marketTipsService = new MarketTipsService();
+const bitfinexService = new BitfinexService();
 
 export {
-  marketTipsService
+  bitfinexService
 };
