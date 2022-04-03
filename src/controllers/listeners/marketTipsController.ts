@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws';
-import { BitfinexBookRequestDTO } from '../../../data/DTOs/bitfinexMessageDTO';
+import { BitfinexBookMessegetDTO, BitfinexBookRequestDTO } from '../../../data/DTOs/bitfinexMessageDTO';
+import { BitfinexFrequencyEnum, BitfinexPrecisionEnum } from '../../../data/enums/bitfinexEnum';
 import { BadArgumentsException } from '../../../data/errors/badArgumentsException';
 import { IMarketTipsService } from '../../services/marketTipsService';
 
@@ -13,17 +14,30 @@ export class MarketTipsController implements IMarketTipsController {
   constructor(private readonly marketTipsService: IMarketTipsService) {}
   
   getMarketTips(data: BitfinexBookRequestDTO, wsOrigin: WebSocket): void {
-    if (!data.symbol) {
-      throw new BadArgumentsException('Symbol field is required');
+    try {
+      if (!data.symbol) {
+        throw new BadArgumentsException('Symbol field is required');
+      }
+  
+      if (data.freq && !BitfinexFrequencyEnum[data.freq]) {
+        throw new BadArgumentsException('The frequency field does not exist');
+      }
+  
+      if (data.prec && !BitfinexPrecisionEnum[data.prec]) {
+        throw new BadArgumentsException('The precision field does not exist');
+      }
+  
+      const msg: BitfinexBookMessegetDTO = {
+        event: 'subscribe',
+        channel: 'book',
+        ...data
+      };
+      
+      this.marketTipsService.getOrderbookByPairName(msg, wsOrigin);
+    } catch (err) {
+      wsOrigin.emit('error', err);
+      wsOrigin.emit('market:tip:ob:pause')
     }
-
-    const msg = {
-      event: 'subscribe',
-      channel: 'book',
-      ...data
-    };
-    
-    this.marketTipsService.getOrderbookByPairName(msg, wsOrigin);
   }
 
   pauseMarketTips(): void {
