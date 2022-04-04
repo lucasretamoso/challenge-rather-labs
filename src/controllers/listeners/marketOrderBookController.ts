@@ -1,5 +1,4 @@
 import { WebSocket } from 'ws';
-import { BitfinexMessageDTO } from '../../../data/DTOs/bitfinexMessageDTO';
 import { EffectivePriceDTO } from '../../../data/DTOs/bitfinexOrderBookDTO';
 import { BadArgumentsException } from '../../../data/errors/badArgumentsException';
 import { IBitfinexOrderBookService } from '../../services/bitfinexOrderBookService';
