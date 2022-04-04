@@ -1,9 +1,9 @@
-import ws, { WebSocket } from "ws";
+import ws, { WebSocket } from 'ws';
 import {
   BitfinexOrderBookDTO,
   EffectivePriceDTO,
-} from "../../data/DTOs/bitfinexOrderBookDTO";
-import { BadArgumentsException } from "../../data/errors/badArgumentsException";
+} from '../../data/DTOs/bitfinexOrderBookDTO';
+import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 
 export interface IBitfinexOrderBookService {
   getOrderbookByPairName(data: EffectivePriceDTO, wsOrigin: WebSocket): void;
@@ -15,7 +15,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   private orderBook: BitfinexOrderBookDTO;
 
   constructor() {
-    this.socket = new ws("wss://api-pub.bitfinex.com/ws/2");
+    this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
     this.orderBook = {
       bid: new Map(),
       ask: new Map(),
@@ -25,8 +25,8 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   getOrderbookByPairName(msg: EffectivePriceDTO, wsOrigin: WebSocket): void {
     this.removeAllHandshaking();
 
-    this.socket.on("message", (msgEvent) => {
-      const parseMessage = this.parseMessageOrderBook(msgEvent);
+    this.socket.on('message', (msgEvent) => {
+      this.parseMessageOrderBook(msgEvent);
       if (this.orderBook.ask.size > 0 && this.orderBook.bid.size > 0) {
         wsOrigin.send(
           JSON.stringify({
@@ -41,26 +41,28 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
 
     this.socket.send(JSON.stringify(msg));
 
-    this.socket.on("error", (err) =>
-      wsOrigin.emit("error", new BadArgumentsException(err.message))
+    this.socket.on('error', (err) =>
+      wsOrigin.emit('error', new BadArgumentsException(err.message))
     );
   }
 
   removeAllHandshaking() {
+    this.orderBook.ask.clear();
+    this.orderBook.bid.clear();
     this.socket.removeAllListeners();
   }
 
   private calculateEffectivePrice(operation: string, count: number) {
     const target =
-      operation === "buy" ? this.orderBook.bid : this.orderBook.ask;
+      operation === 'buy' ? this.orderBook.bid : this.orderBook.ask;
 
     let orderPrice = [...target.keys()].sort((k1, k2) => {
-      if (k1 > k2) return 1;
-      if (k1 < k2) return -1;
+      if (k1 > k2) {return 1;}
+      if (k1 < k2) {return -1;}
       return 0;
     });
 
-    if (operation === "sell") {
+    if (operation === 'sell') {
       orderPrice = orderPrice.reverse();
     }
 
@@ -69,7 +71,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
     let summatory = 0;
 
     while (auxiliarCount > 0 && index < orderPrice.length) {
-      const countTarget = parseFloat(target.get(orderPrice[index]) || "0");
+      const countTarget = parseFloat(target.get(orderPrice[index]) || '0');
       const parsedOrderPrice = parseFloat(orderPrice[index]);
 
       if (auxiliarCount > countTarget) {
