@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
-import { BitfinexMessageDTO } from '../../../data/DTOs/bitfinexMessageDTO';
-import { BadArgumentsException } from '../../../data/errors/badArgumentsException';
+import { BitfinexMessageDTO } from '../../data/DTOs/bitfinexMessageDTO';
+import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 import { IBitfinexService } from '../../services/bitfinexService';
 
 export interface IMarketTipsController {

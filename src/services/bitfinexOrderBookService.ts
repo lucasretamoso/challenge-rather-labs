@@ -2,8 +2,8 @@ import ws, { WebSocket } from 'ws';
 import {
   BitfinexOrderBookDTO,
   EffectivePriceDTO,
-} from '../../data/DTOs/bitfinexOrderBookDTO';
-import { BadArgumentsException } from '../../data/errors/badArgumentsException';
+} from '../data/DTOs/bitfinexOrderBookDTO';
+import { BadArgumentsException } from '../data/errors/badArgumentsException';
 
 export interface IBitfinexOrderBookService {
   getOrderbookByPairName(data: EffectivePriceDTO, wsOrigin: WebSocket): void;

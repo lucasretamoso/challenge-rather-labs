@@ -1,8 +1,8 @@
 import ws, { WebSocket } from 'ws';
 import {
   BitfinexMessageDTO,
-} from '../../data/DTOs/bitfinexMessageDTO';
-import { BadArgumentsException } from '../../data/errors/badArgumentsException';
+} from '../data/DTOs/bitfinexMessageDTO';
+import { BadArgumentsException } from '../data/errors/badArgumentsException';
 
 export interface IBitfinexService {
   getTickerByPairName(
