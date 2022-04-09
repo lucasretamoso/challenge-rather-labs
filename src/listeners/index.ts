@@ -1,6 +1,6 @@
 import { Router } from 'express-ws';
 import { RawData, WebSocket } from 'ws';
-import { BadArgumentsException } from '../../data/errors/badArgumentsException';
+import { BadArgumentsException } from '../data/errors/badArgumentsException';
 import { ErrorListener } from './modules/errorListener';
 import { MarketOrderBookListener } from './modules/marketOrdenBookListener';
 import { MarketTickerListener } from './modules/marketTipsListener';

@@ -1,8 +1,8 @@
 import ws, { WebSocket } from 'ws';
 import {
   BitfinexMessageDTO,
-} from '../../data/DTOs/bitfinexMessageDTO';
-import { BadArgumentsException } from '../../data/errors/badArgumentsException';
+} from '../data/DTOs/bitfinexMessageDTO';
+import { BadArgumentsException } from '../data/errors/badArgumentsException';
 
 export interface IBitfinexService {
   getTickerByPairName(
@@ -16,7 +16,7 @@ export class BitfinexService implements IBitfinexService {
   private socket: ws;
 
   constructor() {
-    this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
+    this.socket = new ws(process.env.BITFINEX_URL || '');
   }
 
   getTickerByPairName(

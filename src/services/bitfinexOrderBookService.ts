@@ -2,8 +2,8 @@ import ws, { WebSocket } from 'ws';
 import {
   BitfinexOrderBookDTO,
   EffectivePriceDTO,
-} from '../../data/DTOs/bitfinexOrderBookDTO';
-import { BadArgumentsException } from '../../data/errors/badArgumentsException';
+} from '../data/DTOs/bitfinexOrderBookDTO';
+import { BadArgumentsException } from '../data/errors/badArgumentsException';
 
 export interface IBitfinexOrderBookService {
   getOrderbookByPairName(data: EffectivePriceDTO, wsOrigin: WebSocket): void;
@@ -15,7 +15,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   private orderBook: BitfinexOrderBookDTO;
 
   constructor() {
-    this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
+    this.socket = new ws(process.env.BITFINEX_URL || '');
     this.orderBook = {
       bid: new Map(),
       ask: new Map(),
