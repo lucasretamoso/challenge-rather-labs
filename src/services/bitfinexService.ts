@@ -16,7 +16,7 @@ export class BitfinexService implements IBitfinexService {
   private socket: ws;
 
   constructor() {
-    this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
+    this.socket = new ws(process.env.BITFINEX_URL || '');
   }
 
   getTickerByPairName(

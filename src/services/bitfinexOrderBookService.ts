@@ -15,7 +15,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   private orderBook: BitfinexOrderBookDTO;
 
   constructor() {
-    this.socket = new ws('wss://api-pub.bitfinex.com/ws/2');
+    this.socket = new ws(process.env.BITFINEX_URL || '');
     this.orderBook = {
       bid: new Map(),
       ask: new Map(),
