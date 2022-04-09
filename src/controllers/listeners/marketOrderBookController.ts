@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
-import { EffectivePriceDTO } from '../../../data/DTOs/bitfinexOrderBookDTO';
-import { BadArgumentsException } from '../../../data/errors/badArgumentsException';
+import { EffectivePriceDTO } from '../../data/DTOs/bitfinexOrderBookDTO';
+import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 import { IBitfinexOrderBookService } from '../../services/bitfinexOrderBookService';
 
 export interface IMarketOrderBookController {
