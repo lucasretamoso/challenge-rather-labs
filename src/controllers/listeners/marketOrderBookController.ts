@@ -1,11 +1,12 @@
 import { WebSocket } from 'ws';
 import { EffectivePriceDTO } from '../../data/DTOs/bitfinexOrderBookDTO';
+import { OrdenBookEventEnum } from '../../data/enums/orderBookEventEnum';
 import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 import { IBitfinexOrderBookService } from '../../services/bitfinexOrderBookService';
 
 export interface IMarketOrderBookController {
   getEffectivePrice(data: Partial<EffectivePriceDTO>, ws: WebSocket): void;
-  pauseMarketTicker(): void;
+  pauseMarketEffectivePrice(): void;
 }
 
 export class MarketOrderBookController implements IMarketOrderBookController {
@@ -38,11 +39,11 @@ export class MarketOrderBookController implements IMarketOrderBookController {
       this.bitfinexOrderBookService.getOrderbookByPairName(msg, wsOrigin);
     } catch (err) {
       wsOrigin.emit('error', err);
-      wsOrigin.emit('market:tip:ob:pause');
+      wsOrigin.emit(OrdenBookEventEnum.OrderBookEffectivePricePause);
     }
   }
 
-  pauseMarketTicker(): void {
+  pauseMarketEffectivePrice(): void {
     this.bitfinexOrderBookService.removeAllHandshaking();
   }
 }
