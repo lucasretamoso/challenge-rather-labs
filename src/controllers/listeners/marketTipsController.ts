@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws';
 import { BitfinexMessageDTO } from '../../data/DTOs/bitfinexMessageDTO';
+import { MarketEventEnum } from '../../data/enums/marketEventEnum';
 import { BadArgumentsException } from '../../data/errors/badArgumentsException';
 import { IBitfinexService } from '../../services/bitfinexService';
 
@@ -27,7 +28,7 @@ export class MarketTipsController implements IMarketTipsController {
       this.marketTickerService.getTickerByPairName(msg, wsOrigin);
     } catch (err) {
       wsOrigin.emit('error', err);
-      wsOrigin.emit('market:tip:ob:pause');
+      wsOrigin.emit(MarketEventEnum.MarketTickerPause);
     }
   }
 

@@ -18,7 +18,7 @@
     "rules": {
         "quotes": ["error", "single"],
         "semi": ["error", "always"],
-        "@typescript-eslint/no-explicit-any": ["error", {  "fixToUnknown": true}],
+        "@typescript-eslint/no-explicit-any": ["error", { "ignoreRestArgs": true, "fixToUnknown": true }],
         "curly": "error",
         "no-empty": "error",
         "indent": ["error", 2]
