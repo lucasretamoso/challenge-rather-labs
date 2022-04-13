@@ -123,9 +123,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
     }
 
     return {
-      amount: limitEffectivePrice
-        ? summatory
-        : summatory / (count - auxiliarCount),
+      amount: limitEffectivePrice || summatory / (count - auxiliarCount),
       count: count - auxiliarCount,
     };
   }
