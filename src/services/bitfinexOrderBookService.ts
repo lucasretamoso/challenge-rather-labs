@@ -52,6 +52,7 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
       } else {
         wsOrigin.emit('error', new UnexpectedException(JSON.stringify(err)));
       }
+    }
   }
 
   removeAllHandshaking() {
