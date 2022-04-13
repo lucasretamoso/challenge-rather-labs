@@ -1,6 +1,7 @@
 import ws, { WebSocket } from 'ws';
 import {
   BitfinexOrderBookDTO,
+  EffectivePriceCalculator,
   EffectivePriceDTO,
 } from '../data/DTOs/bitfinexOrderBookDTO';
 import { BadArgumentsException } from '../data/errors/badArgumentsException';
@@ -26,23 +27,26 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   getOrderbookByPairName(msg: EffectivePriceDTO, wsOrigin: WebSocket): void {
     try {
       this.removeAllHandshaking();
-  
+
       this.socket.on('message', (msgEvent) => {
         this.parseMessageOrderBook(msgEvent);
         if (this.orderBook.ask.size > 0 && this.orderBook.bid.size > 0) {
+          const calculateEffectiveWithLimit = this.calculateEffectivePrice(
+            msg.operation,
+            msg.count,
+            msg.limitEffectivePrice
+          );
           wsOrigin.send(
             JSON.stringify({
-              effectivePrice: this.calculateEffectivePrice(
-                msg.operation,
-                msg.count
-              ),
+              effectivePrice: calculateEffectiveWithLimit.amount,
+              countMarket: calculateEffectiveWithLimit.count,
             })
           );
         }
       });
-  
+
       this.socket.send(JSON.stringify(msg));
-  
+
       this.socket.on('error', (err) =>
         wsOrigin.emit('error', new BadArgumentsException(err.message))
       );
@@ -61,13 +65,21 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
     this.socket.removeAllListeners();
   }
 
-  private calculateEffectivePrice(operation: string, count: number) {
+  private calculateEffectivePrice(
+    operation: string,
+    count: number,
+    limitEffectivePrice?: number
+  ): EffectivePriceCalculator {
     const target =
       operation === 'buy' ? this.orderBook.bid : this.orderBook.ask;
 
     let orderPrice = [...target.keys()].sort((k1, k2) => {
-      if (k1 > k2) {return 1;}
-      if (k1 < k2) {return -1;}
+      if (k1 > k2) {
+        return 1;
+      }
+      if (k1 < k2) {
+        return -1;
+      }
       return 0;
     });
 
@@ -82,19 +94,40 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
     while (auxiliarCount > 0 && index < orderPrice.length) {
       const countTarget = parseFloat(target.get(orderPrice[index]) || '0');
       const parsedOrderPrice = parseFloat(orderPrice[index]);
+      const prevAuxiliarCount = auxiliarCount;
+      const prevSummatory = summatory;
 
       if (auxiliarCount > countTarget) {
-        summatory =
-          summatory + (auxiliarCount - countTarget) * parsedOrderPrice;
         auxiliarCount = auxiliarCount - countTarget;
+        summatory = summatory + auxiliarCount * parsedOrderPrice;
       } else {
         summatory = summatory + auxiliarCount * parsedOrderPrice;
         auxiliarCount = 0;
       }
+
+      const actualEffectivePrice = summatory / (count - auxiliarCount);
+
+      if (limitEffectivePrice && limitEffectivePrice < actualEffectivePrice) {
+        const prevEffectivePrice =
+          count === prevAuxiliarCount
+            ? 0
+            : prevSummatory / (count - prevAuxiliarCount);
+        const necessaryCount =
+          (limitEffectivePrice - prevEffectivePrice) / parsedOrderPrice;
+        summatory = prevSummatory + necessaryCount * parsedOrderPrice;
+        auxiliarCount = prevAuxiliarCount - necessaryCount;
+        break;
+      }
+
       index++;
     }
 
-    return summatory / count;
+    return {
+      amount: limitEffectivePrice
+        ? summatory
+        : summatory / (count - auxiliarCount),
+      count: count - auxiliarCount,
+    };
   }
 
   private updateOrderBook(updatedData: number[]) {
@@ -102,12 +135,12 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
       if (updatedData[2] < 0) {
         this.orderBook.bid.set(
           updatedData[0].toString(),
-          (Math.abs(updatedData[1])).toString()
+          Math.abs(updatedData[1]).toString()
         );
       } else {
         this.orderBook.ask.set(
           updatedData[0].toString(),
-          (Math.abs(updatedData[1])).toString()
+          Math.abs(updatedData[1]).toString()
         );
       }
     } else {

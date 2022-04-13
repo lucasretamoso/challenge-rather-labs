@@ -31,6 +31,10 @@
           <input class="form-control mb-3" type="number" name="count" id="idCount" />
         </div>
         <div>
+          <label for="idLimitEffectivePrice" class="form-label">Limit Effective Price:</label>
+          <input class="form-control mb-3" type="number" name="limitEffectivePrice" id="idLimitEffectivePrice" />
+        </div>
+        <div>
           <label for="idOperation" class="form-label">Operation</label>
           <select class="form-select mb-3" name="operation" id="idOperation">
             <option value="buy">Buy</option>
@@ -44,6 +48,10 @@
         <label for="idEfficientPrice" class="form-label">Efficient Price: </label>
         <input class="form-control mb-3" type="number" name="efficientPrice" id="idEfficientPrice" readonly />
       </div>
+      <div>
+        <label for="idCountResult" class="form-label">Count for e ffective price: </label>
+        <input class="form-control mb-3" type="number" name="countResult" id="idCountResult" readonly />
+      </div>
       <h2>Endpoints</h2>
         <a class="btn btn-primary mr-3" href="http://localhost:3000">Go home</a>
         <a class="btn btn-primary" href="http://localhost:3000/market-ticker">Get tips</a>
@@ -53,8 +61,10 @@
       var form = document.getElementById('form');
       var inputPairName = document.getElementById('idPairName');
       var inputCount = document.getElementById('idCount');
+      var inputLimitEffectivePrice = document.getElementById('idLimitEffectivePrice');
       var inputOperation = document.getElementById('idOperation');
       var inputEP = document.getElementById('idEfficientPrice');
+      var inputCountResult = document.getElementById('idCountResult');
       var ws = new WebSocket('ws://localhost:3000/market-effective-price');
 
       form.addEventListener('submit', function(e) {
@@ -65,13 +75,15 @@
             data: {
                 symbol: inputPairName.value,
                 operation: inputOperation.value,
-                count: inputCount.value
+                count: inputCount.value,
+                limitEffectivePrice: inputLimitEffectivePrice.value
             }
           }));
         }
       });
       ws.onmessage = function(evt) {
-        inputEP.value = JSON.parse(evt.data).effectivePrice
+        inputEP.value = JSON.parse(evt.data).effectivePrice,
+        inputCountResult.value = JSON.parse(evt.data).countMarket
       };
     </script>
   </body>

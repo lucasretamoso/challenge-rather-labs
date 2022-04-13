@@ -8,4 +8,10 @@ export interface BitfinexOrderBookDTO {
 export interface EffectivePriceDTO extends BitfinexMessageDTO{
   operation: 'buy' | 'sell';
   count: number;
+  limitEffectivePrice?: number;
+}
+
+export interface EffectivePriceCalculator {
+  amount: number,
+  count: number,
 }
