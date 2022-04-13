@@ -4,6 +4,7 @@ import {
   EffectivePriceDTO,
 } from '../data/DTOs/bitfinexOrderBookDTO';
 import { BadArgumentsException } from '../data/errors/badArgumentsException';
+import { UnexpectedException } from '../data/errors/unexpectedException';
 
 export interface IBitfinexOrderBookService {
   getOrderbookByPairName(data: EffectivePriceDTO, wsOrigin: WebSocket): void;
@@ -23,27 +24,34 @@ export class BitfinexOrderBookService implements IBitfinexOrderBookService {
   }
 
   getOrderbookByPairName(msg: EffectivePriceDTO, wsOrigin: WebSocket): void {
-    this.removeAllHandshaking();
-
-    this.socket.on('message', (msgEvent) => {
-      this.parseMessageOrderBook(msgEvent);
-      if (this.orderBook.ask.size > 0 && this.orderBook.bid.size > 0) {
-        wsOrigin.send(
-          JSON.stringify({
-            effectivePrice: this.calculateEffectivePrice(
-              msg.operation,
-              msg.count
-            ),
-          })
-        );
+    try {
+      this.removeAllHandshaking();
+  
+      this.socket.on('message', (msgEvent) => {
+        this.parseMessageOrderBook(msgEvent);
+        if (this.orderBook.ask.size > 0 && this.orderBook.bid.size > 0) {
+          wsOrigin.send(
+            JSON.stringify({
+              effectivePrice: this.calculateEffectivePrice(
+                msg.operation,
+                msg.count
+              ),
+            })
+          );
+        }
+      });
+  
+      this.socket.send(JSON.stringify(msg));
+  
+      this.socket.on('error', (err) =>
+        wsOrigin.emit('error', new BadArgumentsException(err.message))
+      );
+    } catch (err) {
+      if (err instanceof Error) {
+        wsOrigin.emit('error', new UnexpectedException(err.message));
+      } else {
+        wsOrigin.emit('error', new UnexpectedException(JSON.stringify(err)));
       }
-    });
-
-    this.socket.send(JSON.stringify(msg));
-
-    this.socket.on('error', (err) =>
-      wsOrigin.emit('error', new BadArgumentsException(err.message))
-    );
   }
 
   removeAllHandshaking() {

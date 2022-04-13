@@ -26,9 +26,9 @@ beforeEach(() => {
 describe('MarketOrderBookController class', () => {
   describe('getEffectivePrice method', () => {
     it.each([
-      { data: {} },
-      { data: { symbol: 'testing' } },
-      { data: { symbol: 'testing', count: '1' } },
+      {},
+      { symbol: 'testing' },
+      { symbol: 'testing', count: '1' },
     ])('Should fail if data ($data) is not complete', (data: any) => {
       marketOrderBookController.getEffectivePrice(data, mockWebsocketInstance);
 
