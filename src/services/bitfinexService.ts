@@ -3,6 +3,7 @@ import {
   BitfinexMessageDTO,
 } from '../data/DTOs/bitfinexMessageDTO';
 import { BadArgumentsException } from '../data/errors/badArgumentsException';
+import { UnexpectedException } from '../data/errors/unexpectedException';
 
 export interface IBitfinexService {
   getTickerByPairName(
@@ -23,20 +24,28 @@ export class BitfinexService implements IBitfinexService {
     msg: BitfinexMessageDTO,
     wsOrigin: WebSocket
   ): void {
-    this.removeAllHandshaking();
-
-    this.socket.on('message', (msg) => {
-      const parseMessage = this.parseMessageOrderBook(msg);
-      if (parseMessage) {
-        wsOrigin.send(parseMessage);
+    try {
+      this.removeAllHandshaking();
+  
+      this.socket.on('message', (msg) => {
+        const parseMessage = this.parseMessageOrderBook(msg);
+        if (parseMessage) {
+          wsOrigin.send(parseMessage);
+        }
+      });
+  
+      this.socket.send(JSON.stringify(msg));
+  
+      this.socket.on('error', (err) =>
+        wsOrigin.emit('error', new BadArgumentsException(err.message))
+      );
+    } catch (err) {
+      if (err instanceof Error) {
+        wsOrigin.emit('error', new UnexpectedException(err.message));
+      } else {
+        wsOrigin.emit('error', new UnexpectedException(JSON.stringify(err)));
       }
-    });
-
-    this.socket.send(JSON.stringify(msg));
-
-    this.socket.on('error', (err) =>
-      wsOrigin.emit('error', new BadArgumentsException(err.message))
-    );
+    }
   }
 
   removeAllHandshaking() {
