@@ -34,6 +34,7 @@ export class MarketOrderBookController implements IMarketOrderBookController {
         count: data.count,
         operation: data.operation,
         frec: 'F1',
+        limitEffectivePrice: data.limitEffectivePrice,
       };
       
       this.bitfinexOrderBookService.getOrderbookByPairName(msg, wsOrigin);
